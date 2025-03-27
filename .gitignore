@@ -1,0 +1,8 @@
+# vscode configs
+.vscode/
+
+# objects
+*.o
+
+# executable
+main
