@@ -4,57 +4,62 @@
 #include <pthread.h>
 #include "matrix.h"
 
-#define MATMUL_AVAILABILITY_CHECK(matA, matB, dst) ((matA.row == matB.col) && (matA.col == dst.col) && (matB.row == dst.row))
+#define MATMUL_AVAILABILITY_CHECK(matA, matB, dst) ((matA.len == matB.len) && (matB.len == dst.len))
 
 int matmul(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int result = 0;
+    unsigned int len = 0;
 
     if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
     {
         return -1;
     }
-
-    for (int i = 0; i < matA.col; i++)
+    else
     {
-        for (int j = 0; j < matB.row; j++)
+        len = dst.len;
+    }
+    
+
+    for (int i = 0; i < len; i++)
+    {
+        for (int j = 0; j < len; j++)
         {
             result = 0;
-            for (int k = 0; k < matA.row; k++)
+            for (int k = 0; k < len; k++)
             {
-                result += matA.data[i + matA.col * k] * matB.data[k + matB.col * j];
+                result += matA.data[i + len * k] * matB.data[k + len * j];
             }
-            dst.data[i + dst.col * j] = result;
+            dst.data[i + len * j] = result;
         }
     }
     
     return 0;
 }
 
-int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_t)
+int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int ret = 0;
-    unsigned int start = 0;
-    unsigned int num_threads, col_per_thread, rem;
+    unsigned int len = 0;
     pthread_t *a_thread;
     
     if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
     {
         return -1;
     }
+    else
+    {
+        len = dst.len;
+    }
 
-    num_threads = num_t > matA.col ? matA.col : num_t;
-    col_per_thread = matA.col / num_t;
-    rem = matA.col % num_t;
-
-    a_thread = (pthread_t *)malloc(sizeof(pthread_t) * num_threads);
+    a_thread = (pthread_t *)malloc(sizeof(pthread_t) * len);
     if (a_thread == NULL)
     {
         perror("");
         return -1;
     }
     
-    for (int tnum = 0; tnum < num_threads; tnum++)
+    for (int tnum = 0; tnum < len; tnum++)
     {
         matmul_p_routine_args_t *args;
         args = (matmul_p_routine_args_t *)malloc(sizeof(matmul_p_routine_args_t));
@@ -66,9 +71,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_t)
         args->matA = matA;
         args->matB = matB;
         args->dst = dst;
-        args->col_start = start;
-        args->num_col = tnum < rem ? col_per_thread + 1 : col_per_thread;
-        start += args->num_col;
+        args->num_col = tnum;
 
         ret = pthread_create(a_thread + tnum, NULL, matmul_p_routine, (void *)args);
         if (ret != 0)
@@ -84,7 +87,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_t)
         }
     }
 
-    for (int tnum = 0; tnum < num_threads; tnum++)
+    for (int tnum = 0; tnum < len; tnum++)
     {
         ret = pthread_join(a_thread[tnum], (void **)NULL);
         if (ret != 0)
@@ -110,21 +113,18 @@ void *matmul_p_routine(void *args)
     matrix_t matA = ((matmul_p_routine_args_t *)args)->matA;
     matrix_t matB = ((matmul_p_routine_args_t *)args)->matB;
     matrix_t dst = ((matmul_p_routine_args_t *)args)->dst;
-    unsigned int col_start = ((matmul_p_routine_args_t *)args)->col_start;
+    unsigned int len = ((matmul_p_routine_args_t *)args)->matA.len;
     unsigned int num_col = ((matmul_p_routine_args_t *)args)->num_col;
     free(args);
 
-    for (int i = col_start; i < col_start + num_col; i++)
+    for (int j = 0; j < len; j++)
     {
-        for (int j = 0; j < matB.row; j++)
+        result = 0;
+        for (int k = 0; k < len; k++)
         {
-            result = 0;
-            for (int k = 0; k < matA.row; k++)
-            {
-                result += matA.data[i + matA.col * k] * matB.data[k + matB.col * j];
-            }
-            dst.data[i + dst.col * j] = result;
+            result += matA.data[num_col + len * k] * matB.data[k + len * j];
         }
+        dst.data[num_col + len * j] = result;
     }
 
     return (void **)NULL;

@@ -3,10 +3,10 @@
 #include <time.h>
 #include "utils.h"
 
-int new_matrix(matrix_t *mat, const unsigned int row, const unsigned int col)
+int new_matrix(matrix_t *mat, const unsigned int len)
 {
     int* data;
-    data = (int *)calloc(row * col, sizeof(int));
+    data = (int *)calloc(len * len, sizeof(int));
     if (data == NULL)
     {
         perror("");
@@ -14,20 +14,19 @@ int new_matrix(matrix_t *mat, const unsigned int row, const unsigned int col)
     }
 
     mat->data = data;
-    mat->row = row;
-    mat->col = col;
+    mat->len = len;
     return 0;
 }
 
-int new_random_matrix(matrix_t *mat, const unsigned int row, const unsigned int col)
+int new_random_matrix(matrix_t *mat, const unsigned int len)
 {
     int ret;
-    ret = new_matrix(mat, row, col);
+    ret = new_matrix(mat, len);
     if (ret != 0)
     {
         return -1;
     }
-    for (int i = 0; i < row * col; i++)
+    for (int i = 0; i < len * len; i++)
     {
         mat->data[i] = rand() % 10;
     }
@@ -38,11 +37,11 @@ int new_random_matrix(matrix_t *mat, const unsigned int row, const unsigned int 
 void print_matrix(const matrix_t mat, const char* name)
 {
     printf("===== Matrix %s =====\n", name);
-    for (int i = 0; i < mat.row; i++)
+    for (int i = 0; i < mat.len; i++)
     {
-        for (int j = 0; j < mat.col; j++)
+        for (int j = 0; j < mat.len; j++)
         {
-            printf("%5d", mat.data[j + mat.col * i]);
+            printf("%5d", mat.data[j + mat.len * i]);
         }
         printf("\n");
     }
@@ -52,8 +51,7 @@ void del_matrix(matrix_t *mat)
 {
     free(mat->data);
     mat->data = NULL;
-    mat->col = 0;
-    mat->row = 0;
+    mat->len = 0;
 }
 
 double timediff(const struct timespec start, const struct timespec end)
