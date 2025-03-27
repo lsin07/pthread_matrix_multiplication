@@ -127,5 +127,5 @@ void *matmul_p_routine(void *args)
         dst.data[num_col + len * j] = result;
     }
 
-    return (void **)NULL;
+    return NULL;
 }
