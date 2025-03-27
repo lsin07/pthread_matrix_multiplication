@@ -29,7 +29,7 @@ int new_random_matrix(matrix_t *mat, const unsigned int row, const unsigned int 
     }
     for (int i = 0; i < row * col; i++)
     {
-        mat->data[i] = random() % 10;
+        mat->data[i] = rand() % 10;
     }
 
     return 0;

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     matrix_t dst;
 
     clock_gettime(CLOCK_MONOTONIC, &start);
-    srand(start.tv_nsec);
+    srand((unsigned int)(start.tv_nsec));
     
     assert(new_random_matrix(&matA, len, len) == 0);
     assert(new_random_matrix(&matB, len, len) == 0);
