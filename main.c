@@ -25,9 +25,9 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_MONOTONIC, &end);
     printf("took %.9lfs\n", timediff(start, end));
 
-    print_matrix(matA, "A");
-    print_matrix(matB, "B");
-    print_matrix(dst, "result");
+    // print_matrix(matA, "A");
+    // print_matrix(matB, "B");
+    // print_matrix(dst, "result");
 
     del_matrix(&matA);
     del_matrix(&matB);
