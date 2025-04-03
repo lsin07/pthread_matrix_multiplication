@@ -26,7 +26,7 @@ int new_random_matrix(matrix_t *mat, const unsigned int len)
     {
         return -1;
     }
-    for (int i = 0; i < len * len; i++)
+    for (unsigned int i = 0; i < len * len; i++)
     {
         mat->data[i] = rand() % 10;
     }
@@ -37,9 +37,9 @@ int new_random_matrix(matrix_t *mat, const unsigned int len)
 void print_matrix(const matrix_t mat, const char* name)
 {
     printf("===== Matrix %s =====\n", name);
-    for (int i = 0; i < mat.len; i++)
+    for (unsigned int i = 0; i < mat.len; i++)
     {
-        for (int j = 0; j < mat.len; j++)
+        for (unsigned int j = 0; j < mat.len; j++)
         {
             printf("%5d", mat.data[j + mat.len * i]);
         }

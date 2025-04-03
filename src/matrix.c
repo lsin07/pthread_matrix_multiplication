@@ -21,12 +21,12 @@ int matmul(matrix_t matA, matrix_t matB, matrix_t dst)
     }
     
 
-    for (int i = 0; i < len; i++)
+    for (unsigned int i = 0; i < len; i++)
     {
-        for (int j = 0; j < len; j++)
+        for (unsigned int j = 0; j < len; j++)
         {
             result = 0;
-            for (int k = 0; k < len; k++)
+            for (unsigned int k = 0; k < len; k++)
             {
                 result += matA.data[i + len * k] * matB.data[k + len * j];
             }
@@ -59,7 +59,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         return -1;
     }
     
-    for (int tnum = 0; tnum < len; tnum++)
+    for (unsigned int tnum = 0; tnum < len; tnum++)
     {
         matmul_p_routine_args_t *args;
         args = (matmul_p_routine_args_t *)malloc(sizeof(matmul_p_routine_args_t));
@@ -87,7 +87,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         }
     }
 
-    for (int tnum = 0; tnum < len; tnum++)
+    for (unsigned int tnum = 0; tnum < len; tnum++)
     {
         ret = pthread_join(a_thread[tnum], (void **)NULL);
         if (ret != 0)
@@ -117,10 +117,10 @@ void *matmul_p_routine(void *args)
     unsigned int num_col = ((matmul_p_routine_args_t *)args)->num_col;
     free(args);
 
-    for (int j = 0; j < len; j++)
+    for (unsigned int j = 0; j < len; j++)
     {
         result = 0;
-        for (int k = 0; k < len; k++)
+        for (unsigned int k = 0; k < len; k++)
         {
             result += matA.data[num_col + len * k] * matB.data[k + len * j];
         }
