@@ -7,6 +7,12 @@
 
 int main(int argc, char *argv[])
 {
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s matrix_size\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
     unsigned int len = (unsigned int)atoi(argv[1]);
     struct timespec start, end;
     matrix_t matA;
