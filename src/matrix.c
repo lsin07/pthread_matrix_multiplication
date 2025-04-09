@@ -4,23 +4,13 @@
 #include <pthread.h>
 #include "matrix.h"
 
-#define MATMUL_AVAILABILITY_CHECK(matA, matB, dst) ((matA.len == matB.len) && (matB.len == dst.len))
-
 int matmul(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int result = 0;
     unsigned int len = 0;
 
-    if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
-    {
-        return -1;
-    }
-    else
-    {
-        len = dst.len;
-    }
-    
-
+    MATMUL_AVAILABILITY_CHECK(matA, matB, dst);
+    len = dst.len;
     for (unsigned int i = 0; i < len; i++)
     {
         for (unsigned int j = 0; j < len; j++)
@@ -43,19 +33,13 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
     unsigned int len = 0;
     pthread_t *a_thread;
     
-    if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
-    {
-        return -1;
-    }
-    else
-    {
-        len = dst.len;
-    }
+    MATMUL_AVAILABILITY_CHECK(matA, matB, dst);
+    len = dst.len;
 
     a_thread = (pthread_t *)malloc(sizeof(pthread_t) * len);
     if (a_thread == NULL)
     {
-        perror("");
+        perror("malloc");
         return -1;
     }
     
@@ -65,7 +49,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         args = (matmul_p_routine_args_t *)malloc(sizeof(matmul_p_routine_args_t));
         if (args == NULL)
         {
-            perror("");
+            perror("malloc");
             return -1;
         }
         args->matA = matA;

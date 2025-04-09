@@ -1,6 +1,8 @@
 #ifndef _MATRIX_H
 #define _MATRIX_H
 
+#define MATMUL_AVAILABILITY_CHECK(matA, matB, dst) if ((matA.len != matB.len) || (matB.len != dst.len)) return -1
+
 typedef struct _matrix_t
 {
     int* data;

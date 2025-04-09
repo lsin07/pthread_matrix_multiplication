@@ -9,7 +9,7 @@ int new_matrix(matrix_t *mat, const unsigned int len)
     data = (int *)calloc(len * len, sizeof(int));
     if (data == NULL)
     {
-        perror("");
+        perror("calloc");
         return -1;
     }
 
