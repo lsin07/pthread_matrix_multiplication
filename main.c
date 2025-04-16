@@ -22,12 +22,12 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_MONOTONIC, &start);
     srand((unsigned int)(start.tv_nsec));
     
-    assert(new_random_matrix(&matA, len) == 0);
-    assert(new_random_matrix(&matB, len) == 0);
-    assert(new_matrix(&dst, len) == 0);
+    new_random_matrix(&matA, len);
+    new_random_matrix(&matB, len);
+    new_matrix(&dst, len);
     
     clock_gettime(CLOCK_MONOTONIC, &start);
-    assert(matmul_p(matA, matB, dst) == 0);
+    matmul_p(matA, matB, dst);
     clock_gettime(CLOCK_MONOTONIC, &end);
     printf("took %.9lfs\n", timediff(start, end));
 

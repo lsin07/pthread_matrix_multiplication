@@ -1,7 +1,7 @@
 #ifndef _MATRIX_H
 #define _MATRIX_H
 
-#define MATMUL_AVAILABILITY_CHECK(matA, matB, dst) if ((matA.len != matB.len) || (matB.len != dst.len)) return -1
+#define MATMUL_AVAILABILITY_CHECK(matA, matB, dst) ((matA.len == matB.len) && (matB.len == dst.len))
 
 typedef struct _matrix_t
 {
@@ -17,8 +17,8 @@ typedef struct _matmul_p_routine_args_t
     unsigned int num_col;
 } matmul_p_routine_args_t;
 
-int matmul(matrix_t matA, matrix_t matB, matrix_t dst);
-int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst);
+void matmul(matrix_t matA, matrix_t matB, matrix_t dst);
+void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst);
 void *matmul_p_routine(void *args);
 
 #endif

@@ -4,12 +4,16 @@
 #include <pthread.h>
 #include "matrix.h"
 
-int matmul(matrix_t matA, matrix_t matB, matrix_t dst)
+void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int result = 0;
     unsigned int len = 0;
 
-    MATMUL_AVAILABILITY_CHECK(matA, matB, dst);
+    if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
+    {
+        fprintf(stderr, "%s: invalid shape\n", __func__);
+        exit(EXIT_FAILURE);
+    }
     len = dst.len;
     for (unsigned int i = 0; i < len; i++)
     {
@@ -23,24 +27,26 @@ int matmul(matrix_t matA, matrix_t matB, matrix_t dst)
             dst.data[i + len * j] = result;
         }
     }
-    
-    return 0;
 }
 
-int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
+void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int ret = 0;
     unsigned int len = 0;
     pthread_t *a_thread;
     
-    MATMUL_AVAILABILITY_CHECK(matA, matB, dst);
+    if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
+    {
+        fprintf(stderr, "%s: invalid shape\n", __func__);
+        exit(EXIT_FAILURE);
+    }
     len = dst.len;
 
     a_thread = (pthread_t *)malloc(sizeof(pthread_t) * len);
     if (a_thread == NULL)
     {
         perror("malloc");
-        return -1;
+        exit(EXIT_FAILURE);
     }
     
     for (unsigned int tnum = 0; tnum < len; tnum++)
@@ -50,7 +56,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         if (args == NULL)
         {
             perror("malloc");
-            return -1;
+            exit(EXIT_FAILURE);
         }
         args->matA = matA;
         args->matB = matB;
@@ -61,7 +67,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         if (ret != 0)
         {
             fprintf(stderr, "pthread_create: thread create failed (code %d)\n", ret);
-            return -1;
+            exit(EXIT_FAILURE);
         }
         else
         {
@@ -77,7 +83,7 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         if (ret != 0)
         {
             fprintf(stderr, "pthread_join: thread join failed (code %d)\n", ret);
-            return -1;
+            exit(EXIT_FAILURE);
         }
         else
         {
@@ -88,7 +94,6 @@ int matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
     }
     
     free(a_thread);
-    return 0;
 }
 
 void *matmul_p_routine(void *args)

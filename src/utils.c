@@ -3,35 +3,27 @@
 #include <time.h>
 #include "utils.h"
 
-int new_matrix(matrix_t *mat, const unsigned int len)
+void new_matrix(matrix_t *mat, const unsigned int len)
 {
     int* data;
     data = (int *)calloc(len * len, sizeof(int));
     if (data == NULL)
     {
         perror("calloc");
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     mat->data = data;
     mat->len = len;
-    return 0;
 }
 
-int new_random_matrix(matrix_t *mat, const unsigned int len)
+void new_random_matrix(matrix_t *mat, const unsigned int len)
 {
-    int ret;
-    ret = new_matrix(mat, len);
-    if (ret != 0)
-    {
-        return -1;
-    }
+    new_matrix(mat, len);
     for (unsigned int i = 0; i < len * len; i++)
     {
         mat->data[i] = rand() % 10;
     }
-
-    return 0;
 }
 
 void print_matrix(const matrix_t mat, const char* name)
