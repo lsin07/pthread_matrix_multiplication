@@ -29,7 +29,7 @@ void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
     }
 }
 
-void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
+void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
 {
     int ret = 0;
     unsigned int len = 0;
@@ -42,14 +42,19 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
     }
     len = dst.len;
 
-    a_thread = (pthread_t *)malloc(sizeof(pthread_t) * len);
+    a_thread = (pthread_t *)malloc(sizeof(pthread_t) * num_threads);
     if (a_thread == NULL)
     {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    
-    for (unsigned int tnum = 0; tnum < len; tnum++)
+
+    unsigned int len_sq = len * len;
+    unsigned int num_th = len_sq > num_threads ? num_threads : len_sq;
+    unsigned int tasks_per_thread = len_sq / num_th;
+    unsigned int rem = len_sq % num_th;
+    unsigned int start = 0;
+    for (unsigned int tnum = 0; tnum < num_th; tnum++)
     {
         matmul_p_routine_args_t *args;
         args = (matmul_p_routine_args_t *)malloc(sizeof(matmul_p_routine_args_t));
@@ -61,7 +66,9 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         args->matA = matA;
         args->matB = matB;
         args->dst = dst;
-        args->num_col = tnum;
+        args->start = start;
+        args->num_tasks = tnum < rem ? tasks_per_thread + 1 : tasks_per_thread;
+        start += args->num_tasks;
 
         ret = pthread_create(a_thread + tnum, NULL, matmul_p_routine, (void *)args);
         if (ret != 0)
@@ -77,9 +84,9 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
         }
     }
 
-    for (unsigned int tnum = 0; tnum < len; tnum++)
+    for (unsigned int tnum = 0; tnum < num_th; tnum++)
     {
-        ret = pthread_join(a_thread[tnum], (void **)NULL);
+        ret = pthread_join(a_thread[tnum], NULL);
         if (ret != 0)
         {
             fprintf(stderr, "pthread_join: thread join failed (code %d)\n", ret);
@@ -98,22 +105,24 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst)
 
 void *matmul_p_routine(void *args)
 {
-    int result = 0;
     matrix_t matA = ((matmul_p_routine_args_t *)args)->matA;
     matrix_t matB = ((matmul_p_routine_args_t *)args)->matB;
     matrix_t dst = ((matmul_p_routine_args_t *)args)->dst;
     unsigned int len = ((matmul_p_routine_args_t *)args)->matA.len;
-    unsigned int num_col = ((matmul_p_routine_args_t *)args)->num_col;
+    unsigned int start = ((matmul_p_routine_args_t *)args)->start;
+    unsigned int num_tasks = ((matmul_p_routine_args_t *)args)->num_tasks;
     free(args);
 
-    for (unsigned int j = 0; j < len; j++)
+    int row, col;
+    for (unsigned int task = start; task < start + num_tasks; task++)
     {
-        result = 0;
-        for (unsigned int k = 0; k < len; k++)
+        row = task / len;
+        col = task % len;
+        dst.data[row * len + col] = 0;
+        for (unsigned int i = 0; i < len; i++)
         {
-            result += matA.data[num_col * len + k] * matB.data[k * len + j];
+            dst.data[row * len + col] += matA.data[row * len + i] * matB.data[i * len + col];
         }
-        dst.data[num_col * len + j] = result;
     }
 
     return NULL;

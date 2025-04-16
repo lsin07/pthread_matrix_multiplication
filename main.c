@@ -7,13 +7,14 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        fprintf(stderr, "Usage: %s matrix_size\n", argv[0]);
+        fprintf(stderr, "Usage: %s matrix_size num_threads\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     unsigned int len = (unsigned int)atoi(argv[1]);
+    unsigned int num_threads = (unsigned int)atoi(argv[2]);
     struct timespec start, end;
     matrix_t matA;
     matrix_t matB;
@@ -27,13 +28,13 @@ int main(int argc, char *argv[])
     new_matrix(&dst, len);
     
     clock_gettime(CLOCK_MONOTONIC, &start);
-    matmul_p(matA, matB, dst);
+    matmul_p(matA, matB, dst, num_threads);
     clock_gettime(CLOCK_MONOTONIC, &end);
     printf("took %.9lfs\n", timediff(start, end));
 
-    print_matrix(matA, "A");
-    print_matrix(matB, "B");
-    print_matrix(dst, "result");
+    // print_matrix(matA, "A");
+    // print_matrix(matB, "B");
+    // print_matrix(dst, "result");
 
     del_matrix(&matA);
     del_matrix(&matB);

@@ -1,7 +1,7 @@
 CC=gcc
 TARGET=main
-# CFLAGS=-I inc -lc -lpthread -Wall -Wextra -DDEBUG_LOG
-CFLAGS=-I inc -lc -lpthread -Wall -Wextra
+# CFLAGS=-I inc -lc -lpthread -Wall -Wextra -O3 -DDEBUG_LOG
+CFLAGS=-I inc -lc -lpthread -Wall -Wextra -O3
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
 

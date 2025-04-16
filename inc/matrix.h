@@ -14,11 +14,12 @@ typedef struct _matmul_p_routine_args_t
     matrix_t matA;
     matrix_t matB;
     matrix_t dst;
-    unsigned int num_col;
+    unsigned int start;
+    unsigned int num_tasks;
 } matmul_p_routine_args_t;
 
 void matmul(matrix_t matA, matrix_t matB, matrix_t dst);
-void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst);
+void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads);
 void *matmul_p_routine(void *args);
 
 #endif
