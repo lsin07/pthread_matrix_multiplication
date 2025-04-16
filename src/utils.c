@@ -33,7 +33,7 @@ void print_matrix(const matrix_t mat, const char* name)
     {
         for (unsigned int j = 0; j < mat.len; j++)
         {
-            printf("%5d", mat.data[j + mat.len * i]);
+            printf("%5d", mat.data[i * mat.len + j]);
         }
         printf("\n");
     }

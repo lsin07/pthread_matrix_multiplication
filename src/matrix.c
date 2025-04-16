@@ -22,9 +22,9 @@ void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
             result = 0;
             for (unsigned int k = 0; k < len; k++)
             {
-                result += matA.data[i + len * k] * matB.data[k + len * j];
+                result += matA.data[i * len + k] * matB.data[k * len + j];
             }
-            dst.data[i + len * j] = result;
+            dst.data[i * len + j] = result;
         }
     }
 }
@@ -111,9 +111,9 @@ void *matmul_p_routine(void *args)
         result = 0;
         for (unsigned int k = 0; k < len; k++)
         {
-            result += matA.data[num_col + len * k] * matB.data[k + len * j];
+            result += matA.data[num_col * len + k] * matB.data[k * len + j];
         }
-        dst.data[num_col + len * j] = result;
+        dst.data[num_col * len + j] = result;
     }
 
     return NULL;
