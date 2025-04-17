@@ -5,10 +5,10 @@
 #include "matrix.h"
 #include "utils.h"
 
-void __transpose(matrix_t *mat, matrix_t *dst)
+void __transpose(matrix_t mat, matrix_t *dst)
 {
     int* new_data;
-    unsigned int len = mat->len;
+    unsigned int len = mat.len;
     new_data = (int *)calloc(len * len, sizeof(int));
     if (new_data == NULL)
     {
@@ -20,7 +20,7 @@ void __transpose(matrix_t *mat, matrix_t *dst)
     {
         for (unsigned int j = 0; j < len; j++)
         {
-            new_data[i * len + j] = mat->data[j * len + i];
+            new_data[i * len + j] = mat.data[j * len + i];
         }
     }
 
@@ -74,7 +74,7 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threa
         exit(EXIT_FAILURE);
     }
 
-    __transpose(&matB, &matB_T);
+    __transpose(matB, &matB_T);
 
     unsigned int len_sq = len * len;
     unsigned int num_th = len_sq > num_threads ? num_threads : len_sq;
