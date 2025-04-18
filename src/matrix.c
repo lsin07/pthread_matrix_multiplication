@@ -32,6 +32,7 @@ void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int result = 0;
     unsigned int len = 0;
+    matrix_t matB_T;
 
     if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
     {
@@ -39,6 +40,8 @@ void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
         exit(EXIT_FAILURE);
     }
     len = dst.len;
+
+    __transpose(matB, &matB_T);
     for (unsigned int i = 0; i < len; i++)
     {
         for (unsigned int j = 0; j < len; j++)
@@ -46,11 +49,13 @@ void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
             result = 0;
             for (unsigned int k = 0; k < len; k++)
             {
-                result += matA.data[i * len + k] * matB.data[k * len + j];
+                result += matA.data[i * len + k] * matB_T.data[j * len + k];
             }
             dst.data[i * len + j] = result;
         }
     }
+    
+    del_matrix(&matB_T);
 }
 
 void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
