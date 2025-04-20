@@ -30,33 +30,35 @@ void __transpose(matrix_t mat, matrix_t *dst)
 
 void matmul(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
 {
-    if (num_threads < 1)
+    if ((matA.len != matB.len) || (matB.len != dst.len))
     {
-        fprintf(stderr, "%s: thread_num must be equal or bigger than 1\n", __func__);
+        fprintf(stderr, "%s: invalid shape\n", __func__);
         exit(EXIT_FAILURE);
-    }
-    else if (num_threads == 1)
-    {
-        matmul_np(matA, matB, dst);
     }
     else
     {
-        matmul_p(matA, matB, dst, num_threads);
+        if (num_threads < 1)
+        {
+            fprintf(stderr, "%s: thread_num must be equal or bigger than 1\n", __func__);
+            exit(EXIT_FAILURE);
+        }
+        else if (num_threads == 1)
+        {
+            matmul_np(matA, matB, dst);
+        }
+        else
+        {
+            matmul_p(matA, matB, dst, num_threads);
+        }
     }
+
 }
 
 void matmul_np(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int result = 0;
-    unsigned int len = 0;
+    unsigned int len = dst.len;
     matrix_t matB_T;
-
-    if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
-    {
-        fprintf(stderr, "%s: invalid shape\n", __func__);
-        exit(EXIT_FAILURE);
-    }
-    len = dst.len;
 
     __transpose(matB, &matB_T);
     for (unsigned int i = 0; i < len; i++)
@@ -78,16 +80,9 @@ void matmul_np(matrix_t matA, matrix_t matB, matrix_t dst)
 void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
 {
     int ret = 0;
-    unsigned int len = 0;
+    unsigned int len = dst.len;
     pthread_t *threads_arr;
     matrix_t matB_T;
-    
-    if (MATMUL_AVAILABILITY_CHECK(matA, matB, dst) == false)
-    {
-        fprintf(stderr, "%s: invalid shape\n", __func__);
-        exit(EXIT_FAILURE);
-    }
-    len = dst.len;
 
     threads_arr = (pthread_t *)malloc(sizeof(pthread_t) * num_threads);
     if (threads_arr == NULL)

@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 3)
     {
-        fprintf(stderr, "Usage: %s matrix_size num_threads\n", argv[0]);
+        fprintf(stderr, "Usage: %s matrix_size max_threads\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -39,22 +39,26 @@ int main(int argc, char *argv[])
 
     // Loop through different numbers of threads from 1 to num_threads_max
     unsigned int rep = 100;
-    for (unsigned int nt = 1; nt <= max_threads; nt++) {
+    for (unsigned int nt = 1; nt <= max_threads; nt += nt) {
         double total_time = 0.0;
         
-        // Run matmul 10 times and measure the average time
-        printf("processing tn = %u ... ", nt);
+        printf("processing tn = %u ", nt);
         fflush(stdout);
         for (unsigned int run = 0; run < rep; run++) {
             clock_gettime(CLOCK_MONOTONIC, &start);
             matmul(matA, matB, dst, nt);
             clock_gettime(CLOCK_MONOTONIC, &end);
             total_time += timediff(start, end);
+            if ((rep >= 10) && (run % (rep / 10) == rep / 10 - 1))
+            {
+                printf(".");
+                fflush(stdout);
+            }
         }
 
         // Calculate average time
         double avg_time = total_time / (double)rep;
-        printf("avg_time = %.9lf\n", avg_time);
+        printf(" avg_time = %.9lf\n", avg_time);
 
         // Write to CSV
         fprintf(fp, "%u,%.9lf\n", nt, avg_time);
