@@ -19,7 +19,8 @@ typedef struct _matmul_p_routine_args_t
 } matmul_p_routine_args_t;
 
 void __transpose(matrix_t mat, matrix_t *dst);
-void matmul(matrix_t matA, matrix_t matB, matrix_t dst);
+void matmul(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads);
+void matmul_np(matrix_t matA, matrix_t matB, matrix_t dst);
 void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads);
 void *matmul_p_routine(void *args);
 

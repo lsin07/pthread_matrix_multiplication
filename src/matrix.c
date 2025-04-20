@@ -28,7 +28,24 @@ void __transpose(matrix_t mat, matrix_t *dst)
     dst->len = len;
 }
 
-void matmul(matrix_t matA, matrix_t matB, matrix_t dst)
+void matmul(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
+{
+    if (num_threads < 1)
+    {
+        fprintf(stderr, "%s: thread_num must be equal or bigger than 1\n", __func__);
+        exit(EXIT_FAILURE);
+    }
+    else if (num_threads == 1)
+    {
+        matmul_np(matA, matB, dst);
+    }
+    else
+    {
+        matmul_p(matA, matB, dst, num_threads);
+    }
+}
+
+void matmul_np(matrix_t matA, matrix_t matB, matrix_t dst)
 {
     int result = 0;
     unsigned int len = 0;

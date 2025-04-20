@@ -6,3 +6,6 @@
 
 # executable
 main
+
+# experiment result
+*.csv
