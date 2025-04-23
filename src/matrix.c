@@ -5,7 +5,12 @@
 #include "matrix.h"
 #include "utils.h"
 
-void __transpose(matrix_t mat, matrix_t *dst)
+static void __transpose(const matrix_t mat, matrix_t* const dst);
+static void __matmul_np(const matrix_t matA, const matrix_t matB, const matrix_t dst);
+static void __matmul_p(const matrix_t matA, const matrix_t matB, const matrix_t dst, const unsigned int num_threads);
+static void *__matmul_p_routine(void *args);
+
+static void __transpose(const matrix_t mat, matrix_t* const dst)
 {
     int* new_data;
     unsigned int len = mat.len;
@@ -28,33 +33,7 @@ void __transpose(matrix_t mat, matrix_t *dst)
     dst->len = len;
 }
 
-void matmul(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
-{
-    if ((matA.len != matB.len) || (matB.len != dst.len))
-    {
-        fprintf(stderr, "%s: invalid shape\n", __func__);
-        exit(EXIT_FAILURE);
-    }
-    else
-    {
-        if (num_threads < 1)
-        {
-            fprintf(stderr, "%s: thread_num must be equal or bigger than 1\n", __func__);
-            exit(EXIT_FAILURE);
-        }
-        else if (num_threads == 1)
-        {
-            matmul_np(matA, matB, dst);
-        }
-        else
-        {
-            matmul_p(matA, matB, dst, num_threads);
-        }
-    }
-
-}
-
-void matmul_np(matrix_t matA, matrix_t matB, matrix_t dst)
+static void __matmul_np(const matrix_t matA, const matrix_t matB, const matrix_t dst)
 {
     int result = 0;
     unsigned int len = dst.len;
@@ -77,7 +56,7 @@ void matmul_np(matrix_t matA, matrix_t matB, matrix_t dst)
     del_matrix(&matB_T);
 }
 
-void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threads)
+static void __matmul_p(const matrix_t matA, const matrix_t matB, const matrix_t dst, unsigned int num_threads)
 {
     int ret = 0;
     unsigned int len = dst.len;
@@ -113,8 +92,8 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threa
         args->start = start;
         args->num_tasks = tnum < rem ? tasks_per_thread + 1 : tasks_per_thread;
         start += args->num_tasks;
-
-        ret = pthread_create(threads_arr + tnum, NULL, matmul_p_routine, (void *)args);
+        
+        ret = pthread_create(threads_arr + tnum, NULL, __matmul_p_routine, (void *)args);
         if (ret != 0)
         {
             fprintf(stderr, "pthread_create: thread create failed (code %d)\n", ret);
@@ -127,7 +106,7 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threa
 #endif
         }
     }
-
+    
     for (unsigned int tnum = 0; tnum < num_th; tnum++)
     {
         ret = pthread_join(threads_arr[tnum], NULL);
@@ -141,14 +120,14 @@ void matmul_p(matrix_t matA, matrix_t matB, matrix_t dst, unsigned int num_threa
 #ifdef DEBUG_LOG
             printf("thread %d joined.\n", tnum);
 #endif
-        }
+}
     }
     
     free(threads_arr);
     del_matrix(&matB_T);
 }
 
-void *matmul_p_routine(void *args)
+static void *__matmul_p_routine(void *args)
 {
     matrix_t matA = ((matmul_p_routine_args_t *)args)->matA;
     matrix_t matB = ((matmul_p_routine_args_t *)args)->matB;
@@ -171,4 +150,30 @@ void *matmul_p_routine(void *args)
     }
 
     return NULL;
+}
+
+void matmul(const matrix_t matA, const matrix_t matB, const matrix_t dst, const unsigned int num_threads)
+{
+    if ((matA.len != matB.len) || (matB.len != dst.len))
+    {
+        fprintf(stderr, "%s: invalid shape\n", __func__);
+        exit(EXIT_FAILURE);
+    }
+    else
+    {
+        if (num_threads < 1)
+        {
+            fprintf(stderr, "%s: thread_num must be equal or bigger than 1\n", __func__);
+            exit(EXIT_FAILURE);
+        }
+        else if (num_threads == 1)
+        {
+            __matmul_np(matA, matB, dst);
+        }
+        else
+        {
+            __matmul_p(matA, matB, dst, num_threads);
+        }
+    }
+
 }

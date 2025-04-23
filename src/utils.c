@@ -3,7 +3,7 @@
 #include <time.h>
 #include "utils.h"
 
-void new_matrix(matrix_t *mat, const unsigned int len)
+void new_matrix(matrix_t* const mat, const unsigned int len)
 {
     int* data;
     data = (int *)calloc(len * len, sizeof(int));
@@ -17,7 +17,7 @@ void new_matrix(matrix_t *mat, const unsigned int len)
     mat->len = len;
 }
 
-void new_random_matrix(matrix_t *mat, const unsigned int len)
+void new_random_matrix(matrix_t* const mat, const unsigned int len)
 {
     new_matrix(mat, len);
     for (unsigned int i = 0; i < len * len; i++)
@@ -39,7 +39,7 @@ void print_matrix(const matrix_t mat, const char* name)
     }
 }
 
-void del_matrix(matrix_t *mat)
+void del_matrix(matrix_t* const mat)
 {
     free(mat->data);
     mat->data = NULL;

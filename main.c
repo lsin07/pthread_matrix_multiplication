@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <assert.h>
 #include "utils.h"
 #include "matrix.h"
 
@@ -26,7 +25,7 @@ int main(int argc, char *argv[])
     new_random_matrix(&matA, len);
     new_random_matrix(&matB, len);
     new_matrix(&dst, len);
-    
+
     // Create a CSV file to store the results
     FILE *fp = fopen("result.csv", "w");
     if (fp == NULL) {
@@ -35,37 +34,50 @@ int main(int argc, char *argv[])
     }
 
     // Header for the CSV
-    fprintf(fp, "num_threads,average_time\n");
+    fprintf(fp, "tn,time\n");
 
     // Loop through different numbers of threads from 1 to num_threads_max
-    unsigned int rep = 100;
-    for (unsigned int nt = 1; nt <= max_threads; nt += nt) {
+    unsigned int rep = 32;
+
+    // Generate a list of thread counts in random order
+    unsigned int* thread_counts = malloc(max_threads * sizeof(unsigned int));
+    for (unsigned int i = 0; i < max_threads; ++i) {
+        thread_counts[i] = i + 1;
+    }
+    // Shuffle the array using Fisher-Yates algorithm
+    for (unsigned int i = max_threads - 1; i > 0; --i) {
+        unsigned int j = rand() % (i + 1);
+        unsigned int temp = thread_counts[i];
+        thread_counts[i] = thread_counts[j];
+        thread_counts[j] = temp;
+    }
+
+    for (unsigned int i = 0; i < max_threads; ++i) {
+        unsigned int current_tn = thread_counts[i];
         double total_time = 0.0;
-        
-        printf("processing tn = %u ", nt);
+        printf("(%u / %u) processing tn = %u ", i + 1, max_threads, current_tn);
         fflush(stdout);
         for (unsigned int run = 0; run < rep; run++) {
             clock_gettime(CLOCK_MONOTONIC, &start);
-            matmul(matA, matB, dst, nt);
+            matmul(matA, matB, dst, current_tn);
             clock_gettime(CLOCK_MONOTONIC, &end);
-            total_time += timediff(start, end);
-            if ((rep >= 10) && (run % (rep / 10) == rep / 10 - 1))
-            {
-                printf(".");
+            double this_time = timediff(start, end);
+            total_time += this_time;
+
+            if ((rep >= 10) && (run % (rep / 10) == rep / 10 - 1)) {
+                putchar('.');
                 fflush(stdout);
             }
+            fprintf(fp, "%u,%.9lf\n", current_tn, this_time);
         }
 
         // Calculate average time
         double avg_time = total_time / (double)rep;
         printf(" avg_time = %.9lf\n", avg_time);
-
-        // Write to CSV
-        fprintf(fp, "%u,%.9lf\n", nt, avg_time);
     }
 
-    // Close the file
     fclose(fp);
+    free(thread_counts);
 
     // print_matrix(matA, "A");
     // print_matrix(matB, "B");

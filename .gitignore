@@ -7,5 +7,7 @@
 # executable
 main
 
-# experiment result
+# experiment results
 *.csv
+*.png
+docs/

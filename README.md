@@ -7,5 +7,5 @@ make
 
 ## usage
 ```bash
-./main <matrix size> <threads>
+./main <matrix size> <max_threads>
 ```
