@@ -20,11 +20,15 @@ upper_error = max_value - med_value
 lower_error = med_value - min_value
 
 xticks = np.unique(df['tn'].to_numpy())
-plt.plot(xticks, med_value)
-# plt.errorbar(xticks, med_value, yerr=(lower_error, upper_error))
-# plt.xticks(xticks)
+
+plt.plot(xticks, med_value)                                         # plot result
+# plt.errorbar(xticks, med_value, yerr=(lower_error, upper_error))    # plot result with errorbar
+# plt.xticks(xticks)                                                  # show x-axis ticks
+
 plt.xlabel('# of threads')
 plt.ylabel('processing time [s]')
-plt.title('Processing time of 1000 x 1000 matrix by thread numbers')
+
+mat_size = 1000                                                     # to show the matrix size on the plot title
+plt.title(f'Processing time of {mat_size} x {mat_size} matrix by thread numbers')
 # plt.show()
 plt.savefig("result.png")
