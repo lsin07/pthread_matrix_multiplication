@@ -1,14 +1,14 @@
 CC=gcc
 TARGET=main
-# CFLAGS=-I inc -lc -lpthread -Wall -Wextra -DDEBUG_LOG
-CFLAGS=-I inc -lc -lpthread -Wall -Wextra
+CFLAGS=-Iinc -Wall -Wextra
+LDFLAGS=-lc -lpthread
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
 
 all: $(TARGET)
 
 $(TARGET): main.c $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $^
